@@ -1,0 +1,8 @@
+---
+- name: Create postgis extensions
+  command: "psql -d {{ pgsql_db }} -c 'CREATE EXTENSION IF NOT EXISTS {{ item }};'"
+  become_user: postgres
+  with_items:
+      - postgis
+      - postgis_topology
+      - hstore

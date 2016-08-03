@@ -1,0 +1,7 @@
+### rabbitmq-server
+check process rabbitmq-server with pidfile /var/run/rabbitmq/pid
+     start program "/etc/init.d/rabbitmq-server start" as uid root and gid root
+     stop program "/etc/init.d/rabbitmq-server stop" as uid root and gid root
+     if failed port 5672 type tcp for 3 cycles then restart
+     if 5 restarts within 10 cycles then alert
+     group rabbitmq

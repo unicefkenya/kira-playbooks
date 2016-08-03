@@ -1,0 +1,15 @@
+dedicated_postgres_host: "True"
+include_postgis: true
+monit_scripts: ['postgres', 'cron', 'aws_email', 'email', 'monit', 'system']
+custom_config: "false"
+#Change accourding to your hardware system
+max_connections: 200
+shared_buffers: 7GB
+effective_cache_size: 21GB
+work_mem: 36700kB
+maintenance_work_mem: 1792MB
+checkpoint_segments: 32
+checkpoint_completion_target: 0.7
+wal_buffers: 16MB
+default_statistics_target: 1000
+log_min_duration_statement: 120000

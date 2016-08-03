@@ -1,0 +1,3 @@
+---
+- include: playbooks/common/pgsql.yaml
+- include: playbooks/dkobo/deploy.yaml

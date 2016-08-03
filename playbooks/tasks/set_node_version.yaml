@@ -1,0 +1,15 @@
+- name: node in nvm root dir
+  stat: path="{{ nvm_root }}/{{ node_version }}/bin/node"
+  register: node_in_root
+
+- name: set npm path when node in nvm root dir
+  set_fact:
+      node_dir: "{{ nvm_root }}/{{ node_version }}"
+      npm_path: "{{ nvm_root }}/{{ node_version }}/bin/npm"
+  when: node_in_root.stat.exists == True
+
+- name: set npm path when node in nvm versions folder
+  set_fact:
+      node_dir: "{{ nvm_root }}/versions/node/{{ node_version }}"
+      npm_path: "{{ nvm_root }}/versions/node/{{ node_version }}/bin/npm"
+  when: node_in_root.stat.exists == False

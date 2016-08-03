@@ -20,20 +20,22 @@ or feel free to install those from your distro's repos (and brew if using OSX).
 ***Install Requirements***
 `pip install -r requirements.txt`
 
+***Install required roles***
+`ansible-galaxy install -r requirements/roles.yml -p roles`
 
 ##  Deployment Commands
 
 ***Deploying dkobo***
 
-`ansible-playbook -i inventory/dkobo.ini dkobo.yaml --extra-vars="" --vault-password-file [path to password file] -vvvv`
+`ansible-playbook -i inventory/dkobo.ini dkobo.yaml --extra-vars="" --vault-password-file [path to password file]`
 
 ***Deploying kobocat***
 
-`ansible-playbook -i inventory/kobocat.ini kobocat.yaml  --extra-vars="" --vault-password-file [path to password file] -vvvv`
+`ansible-playbook -i inventory/kobocat.ini kobocat.yaml  --extra-vars="" --vault-password-file [path to password file]`
 
 ***Deploying enketo***
 
-`ansible-playbook -i inventory/enketo-kobocat.ini enketo-kobocat.yaml  --extra-vars="" --vault-password-file [path to password file] -vvvv`
+`ansible-playbook -i inventory/enketo-kobocat.ini enketo-kobocat.yaml  --extra-vars="" --vault-password-file [path to password file]`
 
 
 ## Usage (dev environment)

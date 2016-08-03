@@ -1,0 +1,49 @@
+---
+- name: Install GIT
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - git
+
+- name: Ensure required directories are present
+  file:
+    state: directory
+    owner: postgres
+    group: postgres
+    path: "{{ item }}"
+  with_items:
+    - "/srv/postgres"
+    - "/var/backups/postgres"
+
+- name: Install backup script
+  git:
+    repo: "https://gist.github.com/3091458.git"
+    dest: "/srv/postgres/backupscript"
+    version: "master"
+    recursive: yes
+    update: yes
+    force: yes
+
+- name: Add database to backup list
+  lineinfile:
+    regexp: '^DBNAMES="all"'
+    line: 'DBNAMES="{{ pgsql_db }}"'
+    dest: /srv/postgres/backupscript/autopgsqlbackup
+
+- name: Make script executable
+  file:
+    path: /srv/postgres/backupscript/autopgsqlbackup
+    mode: 0777
+    owner: postgres
+    group: postgres
+
+- name: Create sym link in cron.daily
+  file:
+    src: /srv/postgres/backupscript/autopgsqlbackup
+    dest: /etc/cron.daily/autopgsqlbackup
+    state: link
+    force: yes
+

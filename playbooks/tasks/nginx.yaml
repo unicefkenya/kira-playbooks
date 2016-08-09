@@ -75,6 +75,10 @@
   become: True
   ignore_errors: yes
 
+- name: Test Nginx config
+  shell: "nginx -t"
+  become: True
+
 - name: Ensure log directory is present
   file:
     state: directory

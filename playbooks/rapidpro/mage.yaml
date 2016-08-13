@@ -1,0 +1,68 @@
+---
+- name: deploy rapidpro
+  hosts: rapidpro
+  become: True
+  gather_facts: True
+  tags:
+    - mage
+  roles:
+    - stumptownlabs.maven
+    - redouane.java
+
+  tasks:
+    - name: Add mage system user
+      user:
+        name: "{{ system_user }}"
+        shell: /bin/bash
+        group: www-data
+        groups: tty
+        append: yes
+        createhome: yes
+        home: "{{ system_user_home }}"
+
+    - name: Ensure required directories are present
+      file:
+        state: directory
+        path: "{{ item }}"
+        owner: "{{ system_user }}"
+      with_items:
+        - "{{ log_path }}"
+
+    - name: Git clone mage
+      git:
+        accept_hostkey: "yes"
+        repo: "{{ mage_git_url }}"
+        dest: "{{ mage_checkout_path }}"
+        version: "{{ mage_git_branch }}"
+        key_file: "/home/{{ system_user }}/.ssh/{{ git_key }}"
+
+    - name: Compile app
+      command: mvn clean package -DskipTests=true
+      args:
+        chdir: "{{ mage_checkout_path }}"
+
+    - name: Copy env.sh script
+      template:
+        src: templates/opt/rapidpro/env.sh
+        dest: "{{ mage_checkout_path }}/env.sh"
+        mode: 0755
+
+    - name: Copy mage upstart script
+      template:
+        src: templates/etc/init/mage.conf
+        dest: /etc/init/mage.conf
+        mode: 0644
+
+    - name: Make the new codebase current
+      file:
+        force: yes
+        state: link
+        dest: "{{ mage_install_path }}"
+        src: "{{ mage_checkout_path }}"
+
+    - name: (Re-)start mage and nginx
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - mage

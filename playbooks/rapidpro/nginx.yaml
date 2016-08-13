@@ -1,0 +1,17 @@
+---
+- name: deploy rapidpro
+  hosts: rapidpro
+  become: True
+  gather_facts: True
+  tags:
+    - rapidpro
+  tasks:
+    - include: ../tasks/nginx.yaml cfg_file=rapidpro_uwsgi
+
+    - name: Restart nginx
+      service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+        - nginx

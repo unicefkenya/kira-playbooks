@@ -29,7 +29,7 @@
   with_items:
     - "{{ ssl_key }}"
     - "{{ ssl_cert }}"
-  when: ssl_key is defined
+  when: ssl_key | default(false)
 
 - name: Copy nginx config files
   template:
@@ -60,7 +60,10 @@
     mode: 0644
 
 - name: Ensure default nginx site is activated
-  shell: ln -fs /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  file:
+    state: link
+    dest: /etc/nginx/sites-enabled/default
+    src: /etc/nginx/sites-available/default
   become: True
   ignore_errors: yes
 
@@ -71,7 +74,11 @@
     mode: 0644
 
 - name: Activate nginx site
-  shell: "ln -fs /etc/nginx/sites-available/{{ service_name }} /etc/nginx/sites-enabled/{{ service_name }}"
+  file:
+    force: yes
+    state: link
+    dest: "/etc/nginx/sites-enabled/{{ service_name }}"
+    src: "/etc/nginx/sites-available/{{ service_name }}"
   become: True
   ignore_errors: yes
 

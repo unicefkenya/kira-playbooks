@@ -31,7 +31,7 @@ server {
 
     location / {
         # uwsgi backend
-        uwsgi_pass unix:///tmp/{{ service_name }}.sock;
+        uwsgi_pass unix:///var/run/{{ service_name }}/{{ service_name }}.sock;
         include uwsgi_params;
         proxy_read_timeout {{ proxy_read_timeout }};
 
@@ -69,7 +69,7 @@ server {
 
     location / {
         # uwsgi backend
-        uwsgi_pass unix:///tmp/{{ service_name }}.sock;
+        uwsgi_pass unix:///var/run/{{ service_name }}/{{ service_name }}.sock;
         include uwsgi_params;
         proxy_read_timeout {{ proxy_read_timeout }};
 

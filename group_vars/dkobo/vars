@@ -23,7 +23,7 @@ aws_access_key: ""
 aws_secret_key: ""
 wsgi_module: "dkobo.wsgi:application"
 wsgi_processes: 2
-pid_file: "/tmp/{{ service_name }}.pid"
+pid_file: "/var/run/{{ service_name }}/{{ service_name }}.pid"
 static_path: "{{ codebase_path }}/staticfiles/"
 static_folder: "{{ checkout_path }}/dkobo/static/"
 django_settings_module: "dkobo.settings"

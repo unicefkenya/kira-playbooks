@@ -103,6 +103,7 @@
         - "{{ venv_path }}"
         - "{{ log_path }}"
         - "{{ media_path }}"
+        - "/var/run/{{ service_name }}"
 
     - include: ../tasks/ntp.yaml
 

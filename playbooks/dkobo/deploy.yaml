@@ -25,6 +25,7 @@
         - "{{ versioned_path }}"
         - "{{ venv_path }}"
         - "{{ log_path }}"
+        - "/var/run/{{ service_name }}"
 
     - name: install required packages
       apt:

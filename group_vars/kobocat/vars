@@ -14,7 +14,7 @@ django_secret_key: "{{ vault_django_secret_key }}"
 static_path: "{{ codebase_path }}/onadata/static"
 wsgi_module: "onadata.apps.main.wsgi:application"
 wsgi_processes: 2
-pid_file: "/tmp/{{ service_name }}.pid"
+pid_file: "/var/run/{{ service_name }}/{{ service_name }}.pid"
 log_path: "/var/log/{{ service_name }}"
 media_path: "{{ system_user_home }}/media"
 proxy_read_timeout: "300s"

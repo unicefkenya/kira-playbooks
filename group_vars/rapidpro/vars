@@ -24,8 +24,8 @@ static_path: "{{ codebase_path }}/sitestatic"
 log_path: "/var/log/{{ service_name }}"
 wsgi_module: "temba.wsgi:application"
 wsgi_processes: 3
-pid_file: "/var/run/{{ service_name }}.pid"
-celery_beat_pid_file: "/var/run/{{ service_name }}_celery_beat.pid"
+pid_file: "/run/{{ service_name }}/{{ service_name }}.pid"
+celery_beat_pid_file: "/run/{{ service_name }}/{{ service_name }}_celery_beat.pid"
 proxy_read_timeout: "300s"
 no_reply_monit_email: "noreply+rapidpro@ona.io"
 email_admins: [{"Ona Tech", "tech+rapidpro@ona.io"}]
@@ -49,6 +49,9 @@ aws_email_password: "{{ vault_aws_email_password }}"
 
 # monit
 monit_protection: true
+
+# redis
+redis_password: "{{ vault_rapidpro_redis_passwd }}"
 
 #  postgresql
 pgsql_host: "127.0.0.1"

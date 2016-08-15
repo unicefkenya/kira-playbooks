@@ -30,6 +30,7 @@ CACHES = {
         "LOCATION": "%s:%s:%s" % (REDIS_HOST, REDIS_PORT, REDIS_DB),
         "OPTIONS": {
             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+            "PASSWORD": '{{ redis_password }}',
         }
     }
 }

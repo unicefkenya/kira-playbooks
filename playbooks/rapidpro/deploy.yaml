@@ -5,6 +5,8 @@
   gather_facts: True
   tags:
     - rapidpro
+  roles:
+   - DavidWittman.redis
   tasks:
     - name: Add system user
       user:
@@ -45,7 +47,6 @@
         - tcl8.5
         - "postgresql-contrib-{{ postgresql_version}}"
         - "postgresql-{{ postgresql_version }}-postgis-{{ postgresql_ext_postgis_version }}"
-        - redis-server
         - coffeescript
         - node-less
 
@@ -72,7 +73,6 @@
         - "{{ checkout_path }}"
         - "{{ venv_path }}"
         - "{{ log_path }}"
-        - "/var/run/{{ service_name }}"
 
     - include: ../tasks/ntp.yaml
 
@@ -185,5 +185,4 @@
         - rapidpro
         - celeryd-rapidpro
         - nginx
-        - redis-server
         - rapidpro_celery_beat

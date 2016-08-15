@@ -27,7 +27,6 @@
         owner: "{{ system_user }}"
       with_items:
         - "{{ log_path }}"
-        - "/var/run/{{ service_name }}"
 
     - name: Git clone mage
       git:

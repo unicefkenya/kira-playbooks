@@ -131,6 +131,7 @@
     - name: delete specific enketo pm2 process
       command: pm2 delete "{{ system_user }}"
       # this command fails if the process has not yet been started
+      become_user: "{{ system_user }}"
       ignore_errors: yes
       environment:
           PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
@@ -139,6 +140,15 @@
       command: pm2 start app.js -i 0 -n "{{ system_user }}"
       args:
         chdir: "{{ codebase_path }}"
+      become_user: "{{ system_user }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: save enketo pm2 service
+      command: pm2 save
+      args:
+        chdir: "{{ codebase_path }}"
+      become_user: "{{ system_user }}"
       environment:
           PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 

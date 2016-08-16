@@ -26,6 +26,7 @@ enketo_codebase_dir: "{{ checkout_path }}"
 enketo_deploy_key: /home/ubuntu/.ssh/id_rsa
 
 #enketo
+enketo_api_salt: "{{ vault_enketo_api_salt }}"
 enketo_port: 8005
 managed_by_enketo: "true"
 allow_insecure_transport: "true"
@@ -37,6 +38,8 @@ enketo_nginx_file: enketo
 client_max_body_size: 100M
 
 #redis
+redis_password: "{{ vault_enketo_redis_passwd }}"
+redis_port: 7379
 redis_cache_dir: /var/lib/redis/redis-cache
 redis_logfile: /var/log/redis.log
 nginx_cert_path: ""

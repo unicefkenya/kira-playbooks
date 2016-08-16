@@ -20,9 +20,6 @@ nginx_server_name: "{{ nginx_server_names[0] }}"
 cw_network_out_threshold: 100000000.0
 cw_network_in_threshold:  5000000000.0
 
-# enketo
-enketo_api_salt: "s0m3v3rys3cr3tk3y"
-
 behind_load_balancer: no
 
 # nvm and node

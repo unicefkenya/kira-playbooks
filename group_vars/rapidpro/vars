@@ -52,6 +52,7 @@ monit_protection: true
 
 # redis
 redis_password: "{{ vault_rapidpro_redis_passwd }}"
+redis_port: 6379
 
 #  postgresql
 pgsql_host: "127.0.0.1"

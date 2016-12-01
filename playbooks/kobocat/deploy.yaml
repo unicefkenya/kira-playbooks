@@ -1,4 +1,4 @@
----
+# ---
 - name: deploy kobocat
   hosts: kobocat
   serial: 1
@@ -122,6 +122,12 @@
 
     - name: Install pip requirements
       pip:
+        state: absent
+        name: formpack
+        virtualenv: "{{ venv_path }}"
+
+    - name: Install pip requirements
+      pip:
         state: present
         requirements: "{{ checkout_path }}/requirements/base.pip"
         virtualenv: "{{ venv_path }}"
@@ -133,8 +139,20 @@
         name: jinja2
         virtualenv: "{{ venv_path }}"
 
-    - name: Install form pack
-      pip: name='git+https://github.com/kobotoolbox/formpack.git#egg=formpack' virtualenv="{{ venv_path }}"
+    # - name: Install form pack
+    #   pip: name='git+https://github.com/kobotoolbox/formpack.git#egg=formpack' virtualenv="{{ venv_path }}"
+
+    - name: Install tableau connector
+      pip: name='git+https://github.com/onaio/ona-tableau-connector.git#egg=ona-tableau-connector' virtualenv="{{ venv_path }}"
+
+    - name: include custom urls
+      blockinfile:
+        dest: "{{ checkout_path }}/onadata/apps/main/urls.py"
+        block: |
+          custom_urls = getattr(settings, 'CUSTOM_MAIN_URLS', None)
+          if custom_urls:
+             for url_module in custom_urls:
+               urlpatterns.append(url(r'^', include(url_module)))
 
     - name: Install development pip requirements
       pip:

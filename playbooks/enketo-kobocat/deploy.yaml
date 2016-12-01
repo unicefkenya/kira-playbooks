@@ -7,7 +7,7 @@
   tags:
     - enketo
   roles:
-   - DavidWittman.redis
+  #  - DavidWittman.redis
    - pablocrivella.nvm
   vars:
     - redis_bind: 127.0.0.1

@@ -213,3 +213,9 @@ KPI_URL = os.environ.get('KPI_URL', False)
 
 # specifically for site urls sent to enketo for form retrieval
 ENKETO_PROTOCOL = os.environ.get('ENKETO_PROTOCOL', 'http')
+
+INSTALLED_APPS = ("connector",) + INSTALLED_APPS
+
+CUSTOM_MAIN_URLS = {
+    'connector.urls'
+}

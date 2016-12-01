@@ -42,5 +42,5 @@ redis_password: "{{ vault_enketo_redis_passwd }}"
 redis_port: 7379
 redis_cache_dir: /var/lib/redis/redis-cache
 redis_logfile: /var/log/redis.log
-nginx_cert_path: ""
-nginx_key_path: ""
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_cert_path }}"

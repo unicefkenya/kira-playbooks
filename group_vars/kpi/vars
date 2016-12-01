@@ -1,0 +1,92 @@
+# system 
+system_user: kpi
+system_group: www-data
+system_user_home: "/srv/{{ system_user }}"
+
+# app
+app_path: "{{ system_user_home }}/app"
+codebase_path: "{{ system_user_home }}/app"
+versioned_path: "{{ app_path }}-versioned"
+#checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
+checkout_path: "/srv/kpi/app-versioned/1479815865"
+aws_email_username: ""
+aws_email_password: ""
+venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
+core_url: https://kobo.redcrosske.onalabs.org
+enketo_url: https://enketo.redcrosske.onalabs.org
+service_name: "{{ system_user }}"
+wsgi_module: kobo.wsgi:application
+log_path: /var/log/kpi
+static_path: "{{ checkout_path }}/jsapp"
+client_max_body_size: 100M
+proxy_read_timeout: "300s"
+wsgi_processes: 12
+pid_file: "/tmp/{{ service_name }}.pid"
+enable_https: True
+settings_app_name: kobo.local_settings
+kpi_broker_url: amqp://{{ system_user }}:{{ system_user }}@localhost:5672
+env_name: "prod"
+
+# git
+git_branch: master
+git_url: https://github.com/kobotoolbox/kpi.git
+
+# rabbitmq
+rabbitmq_erlang_cookie: YDJHMWIQKFQBCEIDXOXF
+rabbitmq_create_cluster: False
+rabbitmq_users:
+  - user: admin
+    password: admin
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+# users to remove
+rabbitmq_users_removed: []
+# vhosts to create
+rabbitmq_vhosts: []
+
+# node 
+nvm_version: v0.32.1
+node_version: v6.0.0
+nvm_node_versions:
+  - v6.0.0
+nvm_root: "{{ system_user_home }}/.nvm"
+nvm_env: user
+nvm_users: ["{{ system_user }}"]
+node_dir: "{{ nvm_root }}/versions/node/{{ node_version }}"
+npm_path: "{{ node_dir }}/bin/npm"
+bower_path: "{{ node_dir }}/bin/bower"
+grunt_path: "{{ node_dir }}/bin/grunt"
+
+# postgres 
+pgsql_password: "{{ vault_pgsql_password }}"
+pgsql_host: "127.0.0.1"
+pgsql_user: "kpi"
+pgsql_db: "kpi"
+
+
+postgresql_version: 9.5
+
+postgresql_users:
+  - name: "{{ pgsql_user }}"
+    pass: "{{ pgsql_password }}"
+
+postgresql_databases:
+  - name: "{{ pgsql_db }}"
+    owner: "{{ pgsql_user }}"
+    hstore: yes
+
+postgresql_user_privileges:
+  - name: "{{ pgsql_user }}"
+    db: "{{ pgsql_db }}"
+
+postgresql_ext_install_postgis: yes
+postgresql_ext_postgis_version: "2.2"
+
+# ssl
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"
+ssl_key: "{{ vault_nginx_key_path }}"
+

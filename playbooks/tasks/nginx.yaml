@@ -21,15 +21,15 @@
     mode: 0700
   when: ssl_key is defined
 
-- name: Copy ssl certs
-  copy:
-    src: "{{ inventory_dir }}/files/{{ item }}"
-    dest: "/etc/nginx/ssl/{{ item }}"
-    mode: 0600
-  with_items:
-    - "{{ ssl_key }}"
-    - "{{ ssl_cert }}"
-  when: ssl_key | default(false)
+# - name: Copy ssl certs
+#   copy:
+#     src: "{{ inventory_dir }}/files/{{ item }}"
+#     dest: "/etc/nginx/ssl/{{ item }}"
+#     mode: 0600
+#   with_items:
+#     - "{{ ssl_key }}"
+#     - "{{ ssl_cert }}"
+#   when: ssl_key | default(false)
 
 - name: Copy nginx config files
   template:
@@ -94,4 +94,4 @@
   with_items:
     - "{{ log_path }}"
 
-- include: ../tasks/logrotate.yaml logrotate_from=nginx logrotate_to={{ service_name }}-nginx
+ - include: ../tasks/logrotate.yaml logrotate_from=nginx logrotate_to={{ service_name }}-nginx

@@ -94,4 +94,4 @@
   with_items:
     - "{{ log_path }}"
 
- - include: ../tasks/logrotate.yaml logrotate_from=nginx logrotate_to={{ service_name }}-nginx
+- include: ../tasks/logrotate.yaml logrotate_from=nginx logrotate_to={{ service_name }}-nginx

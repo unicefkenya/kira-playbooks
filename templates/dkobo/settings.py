@@ -170,7 +170,7 @@ KOBO_SURVEY_IMPORT_COUNT = os.environ.get('KOBO_SURVEY_IMPORT_COUNT', 100)
 # around before purging it.
 KOBO_SURVEY_PREVIEW_EXPIRATION = os.environ.get('KOBO_SURVEY_PREVIEW_EXPIRATION', 24)
 
-KOBOFORM_PREVIEW_SERVER = os.environ.get('KOBOFORM_PREVIEW_SERVER', 'http://{{ nginx_server_name }}')
+KOBOFORM_PREVIEW_SERVER = os.environ.get('KOBOFORM_PREVIEW_SERVER', 'https://{{ nginx_server_name }}')
 ENKETO_SERVER = os.environ.get('ENKETO_URL') or os.environ.get('ENKETO_SERVER', '{{ enketo_server }}')
 ENKETO_SERVER= ENKETO_SERVER.rstrip('/') + '/'  # Ensure the URL is terminated with a backslash.
 ENKETO_VERSION= os.environ.get('ENKETO_VERSION', 'express').lower()

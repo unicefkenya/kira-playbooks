@@ -2,226 +2,226 @@
 - hosts: kpi
   become: true
   pre_tasks:
-    # - name: Update apt cache
-    #   sudo: yes
-    #   apt: update_cache=yes
+    - name: Update apt cache
+      sudo: yes
+      apt: update_cache=yes
     
-    # - name: add kpi system user
-    #   user:
-    #     name: "{{ system_user }}"
-    #     shell: /bin/bash
-    #     group: "{{ system_group }}"
-    #     append: yes
-    #     createhome: yes
-    #     home: "{{ system_user_home }}"
+    - name: add kpi system user
+      user:
+        name: "{{ system_user }}"
+        shell: /bin/bash
+        group: "{{ system_group }}"
+        append: yes
+        createhome: yes
+        home: "{{ system_user_home }}"
 
-  # roles:
-  #  - ANXS.postgresql
+  roles:
+   - ANXS.postgresql
 
   tasks:
-    # - include: ../tasks/set_node_version.yaml
-    # - name: download nvm
-    #   get_url: 
-    #     url: https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh
-    #     dest: /tmp/install.sh
-    #     mode: 0777
+    - include: ../tasks/set_node_version.yaml
+    - name: download nvm
+      get_url: 
+        url: https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh
+        dest: /tmp/install.sh
+        mode: 0777
 
-    # - name: install nvm
-    #   shell: /tmp/install.sh
-    #   args:
-    #     executable: /bin/bash
-    #   become_user: "{{system_user}}"
+    - name: install nvm
+      shell: /tmp/install.sh
+      args:
+        executable: /bin/bash
+      become_user: "{{system_user}}"
 
-    # - name: install node
-    #   shell: ". /srv/kpi/.nvm/nvm.sh && nvm install {{ node_version }}"
-    #   args:
-    #     executable: /bin/bash
-    #   become_user: "{{ system_user }}"
+    - name: install node
+      shell: ". /srv/kpi/.nvm/nvm.sh && nvm install {{ node_version }}"
+      args:
+        executable: /bin/bash
+      become_user: "{{ system_user }}"
 
 
-    # - name: install required packages
-    #   apt:
-    #     pkg: "{{ item }}"
-    #     state: latest
-    #     update_cache: yes
-    #     cache_valid_time: 600
-    #   with_items:
-    #     - fontforge
-    #     - gettext
-    #     - git
-    #     - libpcre3
-    #     - libpcre3-dev
-    #     - libpq-dev
-    #     - libffi-dev
-    #     - ttfautohint
-    #     - build-essential
-    #     - libpq-dev
-    #     - python-pip
-    #     - python-virtualenv
-    #     - python-celery
-    #     - python-software-properties
-    #     - python-setuptools
-    #     - python2.7-dev
-    #     - python-psycopg2
-    #     - libxml2-dev
-    #     - libxslt1-dev
-    #     - rabbitmq-server
+    - name: install required packages
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+        update_cache: yes
+        cache_valid_time: 600
+      with_items:
+        - fontforge
+        - gettext
+        - git
+        - libpcre3
+        - libpcre3-dev
+        - libpq-dev
+        - libffi-dev
+        - ttfautohint
+        - build-essential
+        - libpq-dev
+        - python-pip
+        - python-virtualenv
+        - python-celery
+        - python-software-properties
+        - python-setuptools
+        - python2.7-dev
+        - python-psycopg2
+        - libxml2-dev
+        - libxslt1-dev
+        - rabbitmq-server
 
-    # - rabbitmq_user:
-    #     user: "{{ system_user }}"
-    #     password: "{{ system_user_home }}"
-    #     vhost: /
-    #     configure_priv: .*
-    #     read_priv: .*
-    #     write_priv: .*
-    #     state: present
+    - rabbitmq_user:
+        user: "{{ system_user }}"
+        password: "{{ system_user_home }}"
+        vhost: /
+        configure_priv: .*
+        read_priv: .*
+        write_priv: .*
+        state: present
 
-    # - name: create .ssh folder
-    #   file:
-    #     path: "{{ system_user_home }}/.ssh"
-    #     owner: "{{ system_user }}"
-    #     state: directory
+    - name: create .ssh folder
+      file:
+        path: "{{ system_user_home }}/.ssh"
+        owner: "{{ system_user }}"
+        state: directory
 
-    # - name: clone kpi repository
-    #   git:
-    #     accept_hostkey: "yes"
-    #     repo: "{{ git_url }}"
-    #     dest: "{{ checkout_path }}"
-    #     version: "{{ git_branch }}"
-    #     recursive: yes
-    #     update: yes
-# 
-    # - name: setup virtualenv
-    #   sudo: yes
-    #   pip:
-    #     virtualenv: "{{ venv_path }}"
-    #     requirements: "{{ checkout_path}}/requirements.txt"
+    - name: clone kpi repository
+      git:
+        accept_hostkey: "yes"
+        repo: "{{ git_url }}"
+        dest: "{{ checkout_path }}"
+        version: "{{ git_branch }}"
+        recursive: yes
+        update: yes
 
-    # - name: Ensure required checkout directories are present
-    #   file:
-    #     state: directory
-    #     owner: "{{ system_user }}"
-    #     group: www-data
-    #     path: "{{ item }}"
-    #   with_items:
-    #     - "{{ log_path }}"
+    - name: setup virtualenv
+      sudo: yes
+      pip:
+        virtualenv: "{{ venv_path }}"
+        requirements: "{{ checkout_path}}/requirements.txt"
+
+    - name: Ensure required checkout directories are present
+      file:
+        state: directory
+        owner: "{{ system_user }}"
+        group: www-data
+        path: "{{ item }}"
+      with_items:
+        - "{{ log_path }}"
     
-    # - name: install npm global packages
-    #   npm:
-    #     global: yes
-    #     name: "{{ item }}"
-    #     state: present
-    #     executable: "{{ npm_path }}"
-    #   with_items:
-    #     - grunt-cli
-    #     - bower
-    #     - webpack
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+    - name: install npm global packages
+      npm:
+        global: yes
+        name: "{{ item }}"
+        state: present
+        executable: "{{ npm_path }}"
+      with_items:
+        - grunt-cli
+        - bower
+        - webpack
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
-    # - name: install npm dependencies in package.json
-    #   npm:
-    #     path: "{{ checkout_path }}"
-    #     state: latest
-    #     executable: "{{ npm_path }}"
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+    - name: install npm dependencies in package.json
+      npm:
+        path: "{{ checkout_path }}"
+        state: latest
+        executable: "{{ npm_path }}"
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
       
-    # - name: change app directory ownership
-    #   file:
-    #       path: "{{ checkout_path }}"
-    #       owner: "{{ system_user }}"
-    #       group: "{{ system_group }}"
-    #       state: directory
-    #       recurse: yes
+    - name: change app directory ownership
+      file:
+          path: "{{ checkout_path }}"
+          owner: "{{ system_user }}"
+          group: "{{ system_group }}"
+          state: directory
+          recurse: yes
 
-    # - name: install bower dependencies
-    #   bower: 
-    #     path: "{{ checkout_path }}"
-    #     state: present
-    #     production: yes
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+    - name: install bower dependencies
+      bower: 
+        path: "{{ checkout_path }}"
+        state: present
+        production: yes
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
-    # - name: Ensure grunt available locally
-    #   npm: 
-    #     name: grunt
-    #     path: "{{ checkout_path }}"
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
-    #   become_user: "{{ system_user }}"
+    - name: Ensure grunt available locally
+      npm: 
+        name: grunt
+        path: "{{ checkout_path }}"
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+      become_user: "{{ system_user }}"
 
-    # adding the following task because sometimes error in 
-    # https://github.com/sass/node-sass/issues/1579 is triggered
-    # - name: re-install node-sass
-    #   shell: "{{ npm_path }} rebuild node-sass"
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+    adding the following task because sometimes error in 
+    https://github.com/sass/node-sass/issues/1579 is triggered
+    - name: re-install node-sass
+      shell: "{{ npm_path }} rebuild node-sass"
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
-    # - name: build client code
-    #   shell: "{{ grunt_path }} copy && {{ npm_path }} run build-production"
-    #   args:
-    #     chdir: "{{ checkout_path }}"
-    #   environment:
-    #     PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+    - name: build client code
+      shell: "{{ grunt_path }} copy && {{ npm_path }} run build-production"
+      args:
+        chdir: "{{ checkout_path }}"
+      environment:
+        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
-    # - name: copy settings file
-    #   template:
-    #     src: templates/kpi/settings.py
-    #     dest: "{{ checkout_path }}/kobo/local_settings.py"
-    #     mode: 0644
-    #   environment:
-    #     KOBOCAT_URL: "{{ core_url }}"
-    #     KOBOCAT_INTERNAL_URL: "{{ core_url }}"
-    #     ENKETO_URL: "{{ enketo_url }}"
-    #     KPI_BROKER_URL: "{{ kpi_broker_url }}"
+    - name: copy settings file
+      template:
+        src: templates/kpi/settings.py
+        dest: "{{ checkout_path }}/kobo/local_settings.py"
+        mode: 0644
+      environment:
+        KOBOCAT_URL: "{{ core_url }}"
+        KOBOCAT_INTERNAL_URL: "{{ core_url }}"
+        ENKETO_URL: "{{ enketo_url }}"
+        KPI_BROKER_URL: "{{ kpi_broker_url }}"
 
-    # - name: syncdb, migrate and collect static files
-    #   django_manage:
-    #     command: "{{ item }}"
-    #     app_path: "{{ checkout_path }}"
-    #     virtualenv: "{{ venv_path }}"
-    #     settings: "{{ settings_app_name }}"
-    #   with_items:
-    #     - syncdb --noinput
-    #     - migrate --noinput
-    #     - collectstatic --noinput
-    #     - compilemessages
+    - name: syncdb, migrate and collect static files
+      django_manage:
+        command: "{{ item }}"
+        app_path: "{{ checkout_path }}"
+        virtualenv: "{{ venv_path }}"
+        settings: "{{ settings_app_name }}"
+      with_items:
+        - syncdb --noinput
+        - migrate --noinput
+        - collectstatic --noinput
+        - compilemessages
 
-    # - name: copy celery init.d script
-    #   template:
-    #     src: templates/etc/init.d/celeryd-kpi
-    #     dest: /etc/init.d/celeryd-kpi
-    #     mode: 0755
+    - name: copy celery init.d script
+      template:
+        src: templates/etc/init.d/celeryd-kpi
+        dest: /etc/init.d/celeryd-kpi
+        mode: 0755
 
-    # - name: copy celery default script
-    #   template:
-    #     src: templates/etc/default/celeryd-kpi
-    #     dest: /etc/default/celeryd-kpi
-    #     mode: 0755
+    - name: copy celery default script
+      template:
+        src: templates/etc/default/celeryd-kpi
+        dest: /etc/default/celeryd-kpi
+        mode: 0755
 
-    # - name: copy upstart script
-    #   template:
-    #     src: templates/kpi/kpi.conf
-    #     dest: /etc/init/kpi.conf
-    #     mode: 0644
+    - name: copy upstart script
+      template:
+        src: templates/kpi/kpi.conf
+        dest: /etc/init/kpi.conf
+        mode: 0644
 
-    # - name: copy uwsgi.ini
-    #   template:
-    #     src: templates/common/uwsgi_kpi.ini
-    #     dest: "{{ checkout_path }}/uwsgi.ini"
-    #     mode: 0644
+    - name: copy uwsgi.ini
+      template:
+        src: templates/common/uwsgi_kpi.ini
+        dest: "{{ checkout_path }}/uwsgi.ini"
+        mode: 0644
 
-    # - name: kill celery workers gracefully
-    #   shell: ps auxww | grep celery | grep -v "grep" | awk '{print $2}' | sudo xargs kill -15
-    #   ignore_errors: yes
+    - name: kill celery workers gracefully
+      shell: ps auxww | grep celery | grep -v "grep" | awk '{print $2}' | sudo xargs kill -15
+      ignore_errors: yes
 
-    # - name: make the new codebase current
-    #   file:
-    #     force: yes
-    #     state: link
-    #     src: "{{ checkout_path }}"
-    #     dest: "{{ app_path }}"
+    - name: make the new codebase current
+      file:
+        force: yes
+        state: link
+        src: "{{ checkout_path }}"
+        dest: "{{ app_path }}"
 
     - include: ../tasks/nginx.yaml cfg_file=rapidpro_uwsgi
 
@@ -237,7 +237,5 @@
         - celeryd-kpi
 
 
-    # - include: ../tasks/monit.yaml
-    # - include: ../tasks/logrotate.yaml logrotate_from=kpi logrotate_to=kpi
-    # - include: ../tasks/collectd.yaml
-    # - include: ../tasks/graylogstash.yaml
+    - include: ../tasks/monit.yaml
+    - include: ../tasks/logrotate.yaml logrotate_from=kpi logrotate_to=kpi

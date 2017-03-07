@@ -91,9 +91,9 @@ STATICFILES_DIRS += ( os.path.join(TEMPLATE_OVERRIDE_ROOT_DIR, 'static'), )
 
 KOBOFORM_SERVER=os.environ.get("KOBOFORM_SERVER", "{{ koboform_server }}")
 KOBOFORM_SERVER_PORT=os.environ.get("KOBOFORM_SERVER_PORT", "80")
-KOBOFORM_SERVER_PROTOCOL=os.environ.get("KOBOFORM_SERVER_PROTOCOL", "http")
+KOBOFORM_SERVER_PROTOCOL=os.environ.get("KOBOFORM_SERVER_PROTOCOL", "https")
 KOBOFORM_LOGIN_AUTOREDIRECT=False
-KOBOFORM_URL=os.environ.get("KOBOFORM_URL", "http://{{ koboform_server }}")
+KOBOFORM_URL=os.environ.get("KOBOFORM_URL", "https://{{ koboform_server }}")
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'onadata.koboform.context_processors.koboform_integration',
@@ -212,4 +212,10 @@ ENKETO_API_INSTANCE_IFRAME_URL = ENKETO_URL + ENKETO_API_ROOT + ENKETO_API_ENDPO
 KPI_URL = os.environ.get('KPI_URL', False)
 
 # specifically for site urls sent to enketo for form retrieval
-ENKETO_PROTOCOL = os.environ.get('ENKETO_PROTOCOL', 'http')
+ENKETO_PROTOCOL = os.environ.get('ENKETO_PROTOCOL', 'https')
+
+INSTALLED_APPS = ("connector",) + INSTALLED_APPS
+
+CUSTOM_MAIN_URLS = {
+    'connector.urls'
+}

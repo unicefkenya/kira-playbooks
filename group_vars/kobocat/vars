@@ -9,6 +9,7 @@ service_name: "{{ system_user }}"
 codebase_path: "{{ system_user_home }}/app"
 versioned_path: "{{ codebase_path }}-versioned"
 checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
+#checkout_path: "/srv/kobocat/app-versioned/1480496348"
 venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
 django_secret_key: "{{ vault_django_secret_key }}"
 static_path: "{{ codebase_path }}/onadata/static"
@@ -69,7 +70,7 @@ django_settings_module: "onadata.settings.common"
 nginx_cert_path: ""
 nginx_key_path: ""
 koboform_server: "dkobo.redcrosske.onalabs.org"
-enketo_server: "http://enketo.redcrosske.onalabs.org/"
+enketo_server: "https://enketo.redcrosske.onalabs.org/"
 
 # postgresql
 dedicated_postgres_host: "False"
@@ -97,3 +98,8 @@ postgresql_user_privileges:
 
 postgresql_ext_install_postgis: yes
 postgresql_ext_postgis_version: "2.2"
+
+# ssl
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"
+ssl_key: "{{ vault_nginx_key_path }}"

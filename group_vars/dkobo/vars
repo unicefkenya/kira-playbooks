@@ -4,8 +4,8 @@ django_secret_key: "{{ vault_django_secret_key }}"
 jwt_algorithm: HS256
 django_debug: False
 log_path: /var/log/dkobo
-kobo_url: http://kobo.redcrosske.onalabs.org
-kobo_preview_server: http://kobo.redcrosske.onalabs.org
+kobo_url: https://kobo.redcrosske.onalabs.org
+kobo_preview_server: https://kobo.redcrosske.onalabs.org
 git_url: https://github.com/kobotoolbox/dkobo.git
 git_key: git_key
 git_branch: master
@@ -29,7 +29,7 @@ static_folder: "{{ checkout_path }}/dkobo/static/"
 django_settings_module: "dkobo.settings"
 proxy_read_timeout: "300s"
 client_max_body_size: "100m"
-enketo_server: "http://enketo.redcrosske.onalabs.org/"
+enketo_server: "https://enketo.redcrosske.onalabs.org/"
 
 # nvm and node
 nvm_version: v0.31.4
@@ -63,3 +63,8 @@ postgresql_user_privileges:
 
 postgresql_ext_install_postgis: yes
 postgresql_ext_postgis_version: "2.2"
+
+# ssl
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"
+ssl_key: "{{ vault_nginx_key_path }}"

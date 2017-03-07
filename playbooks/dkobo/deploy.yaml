@@ -128,8 +128,8 @@
     - name: Compress for production
       django_manage: command={{ item }} app_path={{ checkout_path }} virtualenv={{ venv_path }}
       with_items:
-        - compress --noinput
-      when: django_debug == "False"
+        - compress
+      # when: django_debug == "False"
 
     - name: django syncdb, migrate
       django_manage: command={{ item }} app_path={{ checkout_path }} virtualenv={{ venv_path }}

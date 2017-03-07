@@ -1,0 +1,70 @@
+app_path: /srv/dkobo/app
+app_domain: 127.0.0.1:8080
+django_secret_key: "{{ vault_django_secret_key }}"
+jwt_algorithm: HS256
+django_debug: False
+log_path: /var/log/dkobo
+kobo_url: https://kobo.redcrosske.onalabs.org
+kobo_preview_server: https://kobo.redcrosske.onalabs.org
+git_url: https://github.com/kobotoolbox/dkobo.git
+git_key: git_key
+git_branch: master
+system_user: dkobo
+system_group: www-data
+system_user_home: /srv/{{ system_user }}
+venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
+codebase_path: "{{ system_user_home }}/app"
+versioned_path: "{{ app_path }}-versioned"
+checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
+service_name: "{{ system_user }}"
+custom_config: "False"
+include_postgis: "True"
+aws_access_key: ""
+aws_secret_key: ""
+wsgi_module: "dkobo.wsgi:application"
+wsgi_processes: 2
+pid_file: "/var/run/{{ service_name }}/{{ service_name }}.pid"
+static_path: "{{ codebase_path }}/staticfiles/"
+static_folder: "{{ checkout_path }}/dkobo/static/"
+django_settings_module: "dkobo.settings"
+proxy_read_timeout: "300s"
+client_max_body_size: "100m"
+enketo_server: "https://enketo.redcrosske.onalabs.org/"
+
+# nvm and node
+nvm_version: v0.31.4
+nvm_node_versions:
+  - v0.10.46
+node_version: v0.10.46
+
+# postgresql
+dedicated_postgres_host: "False"
+
+pgsql_db: kobocat
+pgsql_user: kobocat
+pgsql_password: "{{ vault_pgsql_password }}"
+
+pgsql_host: "127.0.0.1"
+
+postgresql_version: 9.5
+
+postgresql_users:
+  - name: "{{ pgsql_user }}"
+    pass: "{{ pgsql_password }}"
+
+postgresql_databases:
+  - name: "{{ pgsql_db }}"
+    owner: "{{ pgsql_user }}"
+    hstore: yes
+
+postgresql_user_privileges:
+  - name: "{{ pgsql_user }}"
+    db: "{{ pgsql_db }}"
+
+postgresql_ext_install_postgis: yes
+postgresql_ext_postgis_version: "2.2"
+
+# ssl
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"
+ssl_key: "{{ vault_nginx_key_path }}"

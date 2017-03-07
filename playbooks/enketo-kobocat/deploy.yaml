@@ -1,0 +1,171 @@
+---
+- name: Deploy enketo
+  hosts: enketo-kobocat
+  user: "{{ deploy_user }}"
+  become: True
+  gather_facts: True
+  tags:
+    - enketo
+  roles:
+  #  - DavidWittman.redis
+   - pablocrivella.nvm
+  vars:
+    - redis_bind: 127.0.0.1
+  tasks:
+    - include: ../tasks/set_node_version.yaml
+
+    - name: Add Enketo System User
+      user:
+        name: "{{ system_user }}"
+        shell: /bin/bash
+        group: www-data
+        force: yes
+        append: yes
+        createhome: yes
+        home: "{{ system_user_home }}"
+
+    - name: Make Redis Cache Data Directory
+      file:
+        state: directory
+        path: "{{ redis_cache_dir }}"
+        owner: redis
+
+    - name: Copy Redis Cache configuration
+      template:
+        src: templates/etc/redis/redis-cache.conf
+        dest: /etc/redis/redis-cache.conf
+        mode: 0644
+        owner: redis
+
+    - name: Copy Redis Server Cache Run script
+      template:
+        src: templates/etc/init.d/redis-server-cache
+        dest: /etc/init.d/redis-server-cache
+        mode: 0755
+
+    - name: Start Redis Server Cache
+      shell: /etc/init.d/redis-server-cache start
+
+    - name: Install Enketo Dependencies
+      apt:
+       pkg: "{{ item }}"
+       state: latest
+       update_cache: yes
+       cache_valid_time: 600
+      with_items:
+       - build-essential
+       - git
+       - libxml2-dev
+       - libxslt1-dev
+
+    - name: Install Node.js Packages
+      npm:
+        name: "{{ item }}"
+        state: latest
+        global: yes
+        executable: "{{ npm_path }}"
+      with_items:
+        - grunt-cli
+        - nodemon
+        - mocha
+        - bower
+        - pm2
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Make Checkout Path for Enketo Repo
+      file:
+        state: directory
+        path: "{{ checkout_path }}"
+        owner: "{{ system_user }}"
+
+    - name: Clone Enketo GIT Repository
+      git:
+        repo: "{{ git_url }}"
+        dest: "{{ checkout_path }}"
+        version: "{{ git_branch }}"
+        recursive: yes
+        update: yes
+
+    - name: Install npm Dependencies in package.json
+      command: npm install
+      args:
+        chdir: "{{ enketo_codebase_dir }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Copy enketo config to config directory
+      template:
+        src: templates/enketo/config.json
+        dest: "{{ enketo_codebase_dir }}/config/config.json"
+        mode: 0644
+
+    - name: Install grunt and pm2 manually
+      command: npm install -g grunt-cli pm2
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Grunt Compile CSS and JS
+      command: grunt
+      args:
+        chdir: "{{ enketo_codebase_dir }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Re run Grunt Compile CSS and JS
+      command: grunt
+      args:
+        chdir: "{{ enketo_codebase_dir }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Make the new codebase current
+      file:
+        force: yes
+        state: link
+        dest: "{{ codebase_path }}"
+        src: "{{ enketo_codebase_dir }}"
+
+    - include: ../tasks/nginx.yaml cfg_file={{ enketo_nginx_file }}
+
+    - name: delete specific enketo pm2 process
+      command: pm2 delete "{{ system_user }}"
+      # this command fails if the process has not yet been started
+      become_user: "{{ system_user }}"
+      ignore_errors: yes
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: start enketo pm2 service
+      command: pm2 start app.js -i 0 -n "{{ system_user }}"
+      args:
+        chdir: "{{ codebase_path }}"
+      become_user: "{{ system_user }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: save enketo pm2 service
+      command: pm2 save
+      args:
+        chdir: "{{ codebase_path }}"
+      become_user: "{{ system_user }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: create init script for pm2
+      command: "env PATH=$PATH:/usr/bin pm2 startup linux -u {{ system_user }} --hp {{ system_user_home }}"
+      args:
+        chdir: "{{ codebase_path }}"
+      become: True
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: (re-)start nginx
+      service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+        - nginx
+
+    - include: ../tasks/monit.yaml

@@ -1,0 +1,169 @@
+---
+- hosts: dkobo
+  become: true
+  roles:
+    - pablocrivella.nvm
+  tasks:
+    - name: update apt cache
+      apt: update_cache=yes
+
+    - name: add form builder system user
+      user:
+        name: "{{ system_user }}"
+        shell: /bin/bash
+        group: "{{ system_group }}"
+        append: yes
+        createhome: yes
+
+    - name: Ensure required checkout directories are present
+      file:
+        state: directory
+        owner: "{{ system_user }}"
+        group: www-data
+        path: "{{ item }}"
+      with_items:
+        - "{{ versioned_path }}"
+        - "{{ venv_path }}"
+        - "{{ log_path }}"
+        - "/var/run/{{ service_name }}"
+
+    - name: install required packages
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+        update_cache: yes
+        cache_valid_time: 600
+      with_items:
+        - git
+        - libxml2
+        - libpq-dev
+        - libxml2-dev
+        - libxslt1-dev
+        - python2.7-dev
+        - python-virtualenv
+        - nginx
+        - coffeescript
+
+    - include: ../tasks/set_node_version.yaml
+
+    - name: install npm packages
+      npm:
+        name: "{{ item }}"
+        state: latest
+        global: yes
+        executable: "{{ npm_path }}"
+      with_items:
+        - bower
+        - grunt-cli
+        - coffee-script
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: create .ssh folder
+      file:
+        path: "/home/{{ system_user }}/.ssh"
+        owner: "{{ system_user }}"
+        state: directory
+
+    - name: Clone dkobo GIT Repository
+      git:
+        accept_hostkey: "yes"
+        repo: "{{ git_url }}"
+        dest: "{{ checkout_path }}"
+        version: "{{ git_branch }}"
+        recursive: yes
+        update: yes
+
+    - name: Change internal static folder perms
+      file:
+        state: directory
+        path: "{{ item }}"
+        mode: 0777
+      with_items:
+        - "{{ static_folder }}"
+
+    - name: setup virtualenv
+      pip: virtualenv={{ venv_path }} requirements={{ checkout_path }}/requirements.txt
+      environment:
+        DJANGO_DEBUG: "{{ django_debug }}"
+        DJANGO_SECRET_KEY: "{{ django_secret_key }}"
+
+    - name: Install uwsgi
+      pip:
+        state: present
+        name: "{{ item }}"
+        virtualenv: "{{ venv_path }}"
+        extra_args: --upgrade --force
+      with_items:
+        - uwsgi
+
+    - name: install dependencies in package.json.
+      npm:
+        path: "{{ checkout_path }}"
+        executable: "{{ npm_path }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: install dependencies in bower.json
+      command: bower install --allow-root
+      args:
+        chdir: "{{ checkout_path }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: build js and css dependencies
+      command: grunt build
+      args:
+        chdir: "{{ checkout_path }}"
+      environment:
+          PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
+
+    - name: Copy over our local settings from template
+      template:
+        src: templates/dkobo/settings.py
+        dest: "{{ checkout_path }}/dkobo/settings.py"
+        owner: '{{ system_user }}'
+        group: '{{ system_group }}'
+
+    - name: Compress for production
+      django_manage: command={{ item }} app_path={{ checkout_path }} virtualenv={{ venv_path }}
+      with_items:
+        - compress
+      # when: django_debug == "False"
+
+    - name: django syncdb, migrate
+      django_manage: command={{ item }} app_path={{ checkout_path }} virtualenv={{ venv_path }}
+      with_items:
+        - syncdb --noinput
+        - migrate --noinput
+        - collectstatic --noinput
+
+    - name: Make the new codebase current
+      file:
+        force: yes
+        state: link
+        dest: "{{ codebase_path }}"
+        src: "{{ checkout_path }}"
+
+    - name: Copy uwsgi.ini
+      template:
+        src: templates/common/dkobo.ini
+        dest: "{{ checkout_path }}/uwsgi.ini"
+        mode: 0644
+
+    - name: Copy upstart script
+      template:
+        src: templates/etc/init/dkobo.conf
+        dest: /etc/init/dkobo.conf
+        mode: 0644
+
+    - include: ../tasks/nginx.yaml cfg_file=django_uwsgi_generic
+
+    - name: start form builder app
+      service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+       - dkobo
+       - nginx

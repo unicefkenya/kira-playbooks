@@ -1,0 +1,105 @@
+# user
+system_user: "kobocat"
+system_group: "www-data"
+system_user_home: "/srv/{{ system_user }}"
+
+# service
+env_name: "prod"
+service_name: "{{ system_user }}"
+codebase_path: "{{ system_user_home }}/app"
+versioned_path: "{{ codebase_path }}-versioned"
+checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
+#checkout_path: "/srv/kobocat/app-versioned/1480496348"
+venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
+django_secret_key: "{{ vault_django_secret_key }}"
+static_path: "{{ codebase_path }}/onadata/static"
+wsgi_module: "onadata.apps.main.wsgi:application"
+wsgi_processes: 2
+pid_file: "/var/run/{{ service_name }}/{{ service_name }}.pid"
+log_path: "/var/log/{{ service_name }}"
+media_path: "{{ system_user_home }}/media"
+proxy_read_timeout: "300s"
+odk_server_uri: "odk.ona.io"
+
+# git
+git_url: "https://github.com/kobotoolbox/kobocat.git"
+git_key: "git_key"
+git_branch: "master"
+
+# google
+google_site_verification: ''
+google_analytics_property_id: ''
+
+# local_settings
+debug: False
+local_settings_path: "templates/opt/kobocat/settings/local_settings.py"
+
+# rabbitmq
+rabbitmq_erlang_cookie: jrM978XwA94CxFP
+rabbitmq_create_cluster: false
+rabbitmq_users:
+  - user: admin
+    password: admin
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+
+# Users to remove
+rabbitmq_users_removed: []
+
+# Vhosts to create
+rabbitmq_vhosts: []
+
+# cache-control
+cache_control_max_age: 30
+
+# enketo
+enketo_offline: "True"
+
+# odk attachment default content length
+odk_content_length: 10000000
+
+# recreate the virtual env, deletes the existing virtual env
+recreate_virtual_env: false
+
+custom_template: "https://github.com/kobotoolbox/kobocat-template.git"
+include_postgis: True
+django_settings_module: "onadata.settings.common"
+nginx_cert_path: ""
+nginx_key_path: ""
+koboform_server: "dkobo.redcrosske.onalabs.org"
+enketo_server: "https://enketo.redcrosske.onalabs.org/"
+
+# postgresql
+dedicated_postgres_host: "False"
+
+pgsql_db: kobocat
+pgsql_user: kobocat
+pgsql_password: "{{ vault_pgsql_password }}"
+
+pgsql_host: "127.0.0.1"
+
+postgresql_version: 9.5
+
+postgresql_users:
+  - name: "{{ pgsql_user }}"
+    pass: "{{ pgsql_password }}"
+
+postgresql_databases:
+  - name: "{{ pgsql_db }}"
+    owner: "{{ pgsql_user }}"
+    hstore: yes
+
+postgresql_user_privileges:
+  - name: "{{ pgsql_user }}"
+    db: "{{ pgsql_db }}"
+
+postgresql_ext_install_postgis: yes
+postgresql_ext_postgis_version: "2.2"
+
+# ssl
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"
+ssl_key: "{{ vault_nginx_key_path }}"

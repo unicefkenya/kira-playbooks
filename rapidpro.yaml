@@ -1,0 +1,5 @@
+---
+- include: playbooks/common/monit.yaml
+- include: playbooks/common/pgsql.yaml
+- include: playbooks/rapidpro/deploy.yaml
+- include: playbooks/rapidpro/mage.yaml

@@ -1,0 +1,84 @@
+---
+# user
+system_user: "rapidpro"
+system_group: "www-data"
+system_user_home: "/home/{{ system_user }}"
+
+# git
+git_url: "https://github.com/onaio/rapidpro.git"
+git_key: "git_key"
+git_branch: "master"
+
+# mage
+mage_git_url: "https://github.com/rapidpro/mage.git"
+mage_git_branch: "master"
+
+# service
+env_name: "prod"
+service_name: "{{ system_user }}"
+codebase_path: "{{ system_user_home }}/app"
+versioned_path: "{{ codebase_path }}-versioned"
+checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
+venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
+static_path: "{{ codebase_path }}/sitestatic"
+log_path: "/var/log/{{ service_name }}"
+wsgi_module: "temba.wsgi:application"
+wsgi_processes: 3
+pid_file: "/run/{{ service_name }}/{{ service_name }}.pid"
+celery_beat_pid_file: "/run/{{ service_name }}/{{ service_name }}_celery_beat.pid"
+proxy_read_timeout: "300s"
+no_reply_monit_email: "noreply+rapidpro@ona.io"
+email_admins: [{"Ona Tech", "tech+rapidpro@ona.io"}]
+
+mage_install_path: "{{ system_user_home }}/mage"
+mage_versioned_path: "{{ mage_install_path }}-versioned"
+mage_checkout_path: "{{ mage_versioned_path }}/{{ ansible_date_time['epoch'] }}"
+
+twitter_api_key: "{{ vault_twitter_api_key }}"
+twitter_api_secret: "{{ vault_twitter_api_secret }}"
+
+mage_api_url: "http://localhost:8026/api/v1"
+temba_auth_token: "{{ lookup('password', inventory_dir + '/credentials/temba_auth_token') }}"
+java_version : 8
+
+# aws
+aws_access_key: "{{ vault_aws_access_key }}"
+aws_secret_key: "{{ vault_aws_seret_key }}"
+aws_email_username: "{{ vault_aws_email_username }}"
+aws_email_password: "{{ vault_aws_email_password }}"
+
+# monit
+monit_protection: true
+
+# redis
+redis_password: "{{ vault_rapidpro_redis_passwd }}"
+redis_port: 6379
+
+#  postgresql
+pgsql_host: "127.0.0.1"
+pgsql_db: rapidpro
+pgsql_user: rapidpro
+pgsql_password: "{{ vault_rapidpro_pgsql_passwd }}"
+dedicated_postgres_host: "False"
+
+postgresql_version: 9.5
+
+postgresql_users:
+  - name: "{{ pgsql_user }}"
+    pass: "{{ pgsql_password }}"
+
+postgresql_databases:
+  - name: "{{ pgsql_db }}"
+    owner: "{{ pgsql_user }}"
+    hstore: yes
+
+postgresql_user_privileges:
+  - name: "{{ pgsql_user }}"
+    db: "{{ pgsql_db }}"
+
+postgresql_ext_install_postgis: yes
+postgresql_ext_postgis_version: "2.2"
+
+# ssl
+#nginx_cert_path: "{{ vault_nginx_cert_path }}"
+#nginx_key_path: "{{ vault_nginx_key_path }}"

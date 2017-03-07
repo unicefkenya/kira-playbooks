@@ -1,0 +1,97 @@
+---
+- name: Add latest nginx repo
+  apt_repository:
+    repo: 'ppa:nginx/stable'
+    state: present
+
+- name: ensure nginx is installed
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - nginx
+
+- name: Ensure ssl directory is present
+  file:
+    state: directory
+    path: /etc/nginx/ssl
+    owner: root
+    mode: 0700
+  when: ssl_key is defined
+
+# - name: Copy ssl certs
+#   copy:
+#     src: "{{ inventory_dir }}/files/{{ item }}"
+#     dest: "/etc/nginx/ssl/{{ item }}"
+#     mode: 0600
+#   with_items:
+#     - "{{ ssl_key }}"
+#     - "{{ ssl_cert }}"
+#   when: ssl_key | default(false)
+
+- name: Copy nginx config files
+  template:
+    src: "templates/etc/nginx/{{ item }}.conf"
+    dest: "/etc/nginx/{{ item }}.conf"
+    mode: 0644
+  with_items:
+    - nginx
+    - http_logs
+
+- name: Copy nginx ssl config files
+  template:
+    src: "templates/etc/nginx/{{ item }}.conf"
+    dest: "/etc/nginx/{{ item }}.conf"
+    mode: 0644
+  with_items:
+    - secure_ssl
+  when: ssl_key is defined
+
+- name: Generate secure Diffie Hellman ephemeral parameters
+  command: openssl dhparam -dsaparam -out /etc/ssl/certs/dhparam.pem 4096 creates=/etc/ssl/certs/dhparam.pem
+  become: True
+
+- name: Copy default nginx config
+  template:
+    src: templates/etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-available/default
+    mode: 0644
+
+- name: Ensure default nginx site is activated
+  file:
+    state: link
+    dest: /etc/nginx/sites-enabled/default
+    src: /etc/nginx/sites-available/default
+  become: True
+  ignore_errors: yes
+
+- name: Copy application nginx config
+  template:
+    src: templates/etc/nginx/sites-available/{{ cfg_file }}
+    dest: /etc/nginx/sites-available/{{ service_name }}
+    mode: 0644
+
+- name: Activate nginx site
+  file:
+    force: yes
+    state: link
+    dest: "/etc/nginx/sites-enabled/{{ service_name }}"
+    src: "/etc/nginx/sites-available/{{ service_name }}"
+  become: True
+  ignore_errors: yes
+
+- name: Test Nginx config
+  shell: "nginx -t"
+  become: True
+
+- name: Ensure log directory is present
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ system_user }}"
+  with_items:
+    - "{{ log_path }}"
+
+- include: ../tasks/logrotate.yaml logrotate_from=nginx logrotate_to={{ service_name }}-nginx

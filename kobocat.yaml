@@ -1,0 +1,4 @@
+---
+- include: playbooks/common/pgsql.yaml
+- include: playbooks/common/mongo.yaml
+- include: playbooks/kobocat/deploy.yaml

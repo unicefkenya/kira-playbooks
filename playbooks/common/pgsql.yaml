@@ -1,0 +1,37 @@
+---
+- name: Install and prep pgsql
+  hosts: pgsql
+  become: True
+  gather_facts: True
+  roles:
+    - ANXS.postgresql
+  tasks:
+    - name: Ensure pgsql is listening on *
+      lineinfile:
+        regexp: "^#listen_addresses = 'localhost'"
+        line: "listen_addresses = '*'"
+        dest: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+      when: dedicated_postgres_host == "True"
+
+    - name: Add user to acl for pg
+      lineinfile:
+        state: present
+        line: "host    {{ pgsql_db }}    {{ pgsql_user }}    0.0.0.0/0    md5"
+        dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+
+    - name: Custom postgres config
+      template:
+        src: "templates/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+        dest: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+        owner: postgres
+        group: postgres
+        mode: 0644
+      when: custom_config == "true"
+
+    - name: Restart pgsql
+      service:
+        name: postgresql
+        state: restarted
+
+    - include: ../tasks/postgis.yaml
+      when: include_postgis is defined

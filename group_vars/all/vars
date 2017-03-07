@@ -1,0 +1,29 @@
+---
+ansible_python_interpreter: "/usr/bin/python2"
+ansible_ssh_port: 22
+ansible_ssh_user: "ubuntu"
+
+# email settings
+aws_email_server: "email-smtp.us-east-1.amazonaws.com"
+aws_email_hostname: "ona.io"
+aws_email_port: 465
+
+# server settings
+client_max_body_size: "100m"
+deploy_user: "ubuntu"
+enketo_api_token: "{{ vault_enketo_api_token }}"
+jwt_secret_key: "{{ vault_jwt_secret_key }}"
+notification: "true"
+nginx_server_name: "{{ nginx_server_names[0] }}"
+
+# cloudwatch
+cw_network_out_threshold: 100000000.0
+cw_network_in_threshold:  5000000000.0
+
+behind_load_balancer: no
+
+# nvm and node
+# nvm_version: v0.31.4
+# nvm_node_versions:
+#  - v0.10.46
+#  - v4.4.7

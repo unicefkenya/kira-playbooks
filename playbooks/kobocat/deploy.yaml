@@ -1,0 +1,264 @@
+# ---
+- name: deploy kobocat
+  hosts: kobocat
+  serial: 1
+  become: True
+  gather_facts: True
+  tags:
+    - core
+  roles:
+    - ANXS.postgresql
+    - alexeymedvedchikov.rabbitmq
+  vars:
+      monit_scripts: ["celeryd-kobocat", "cron", "monit",
+        "memcached", "nginx", "openssh-server", "rsyslog", "system", "uwsgi-kobocat"]
+  tasks:
+    - name: Add onadata system user
+      user:
+        name: "{{ system_user }}"
+        shell: /bin/bash
+        group: "{{ system_group }}"
+        append: yes
+        createhome: yes
+
+    - name: Update sysctl net settings
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+      with_items:
+        - { name: "fs.file-max", value: 40000 }
+        - { name: "net.core.somaxconn", value: 4096 }
+        - { name: "net.core.rmem_max", value: 16777216 }
+        - { name: "net.core.wmem_max", value: 16777216 }
+        - { name: "net.ipv4.tcp_rmem", value: "4096 87380 16777216" }
+        - { name: "net.ipv4.tcp_wmem", value: "4096 16384 16777216" }
+        - { name: "net.ipv4.tcp_tw_recycle", value: 1 }
+
+    - name: Update limits.conf limits
+      lineinfile:
+        dest: /etc/security/limits.conf
+        line: "{{ item }}"
+        state: present
+        insertafter: EOF
+        create: True
+      with_items:
+        - "* soft nofile 40000"
+        - "* hard nofile 40000"
+
+    - name: Create .ssh folder
+      file:
+        path: "/home/{{ system_user }}/.ssh"
+        owner: "{{ system_user }}"
+        state: directory
+
+    - name: Install system-wide kobocat dependencies
+      apt:
+        pkg: "{{ item }}"
+        state: latest
+        update_cache: yes
+        cache_valid_time: 600
+      with_items:
+        - binutils
+        - libproj-dev
+        - gdal-bin
+        - memcached
+        - libmemcached-dev
+        - build-essential
+        - python-pip
+        - python-virtualenv
+        - python-dev
+        - git
+        - libssl-dev
+        - libpq-dev
+        - gfortran
+        - libatlas-base-dev
+        - libjpeg-dev
+        - libxml2-dev
+        - libxslt-dev
+        - zlib1g-dev
+        - python-software-properties
+        - ghostscript
+        - python-celery
+        - python-sphinx
+        - openjdk-7-jdk
+        - openjdk-7-jre
+
+    - name: Delete virtualenv
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - "{{ venv_path }}"
+      when: recreate_virtual_env
+
+    - name: Ensure required checkout directories are present
+      file:
+        state: directory
+        owner: "{{ system_user }}"
+        group: www-data
+        path: "{{ item }}"
+      with_items:
+        - "{{ versioned_path }}"
+        - "{{ checkout_path }}"
+        - "{{ venv_path }}"
+        - "{{ log_path }}"
+        - "{{ media_path }}"
+        - "/var/run/{{ service_name }}"
+
+    - include: ../tasks/ntp.yaml
+
+    - name: Git clone kobocat
+      git:
+        accept_hostkey: "yes"
+        repo: "{{ git_url }}"
+        dest: "{{ checkout_path }}"
+        version: "{{ git_branch }}"
+
+    - name: custom template
+      shell: (git remote add template {{ custom_template }} || true) && git fetch template && git reset HEAD onadata/libs/custom_template && rm -rf onadata/libs/custom_template && git read-tree --prefix=onadata/libs/custom_template -u template/master
+      args:
+        executable: /bin/bash
+        chdir: "{{ checkout_path }}"
+
+    - name: Install pip requirements
+      pip:
+        state: absent
+        name: formpack
+        virtualenv: "{{ venv_path }}"
+
+    - name: Install pip requirements
+      pip:
+        state: present
+        requirements: "{{ checkout_path }}/requirements/base.pip"
+        virtualenv: "{{ venv_path }}"
+        extra_args: --allow-all-external
+
+    - name: Install jinja2
+      pip:
+        state: present
+        name: jinja2
+        virtualenv: "{{ venv_path }}"
+
+    # - name: Install form pack
+    #   pip: name='git+https://github.com/kobotoolbox/formpack.git#egg=formpack' virtualenv="{{ venv_path }}"
+
+    - name: Install tableau connector
+      pip: name='git+https://github.com/onaio/ona-tableau-connector.git#egg=ona-tableau-connector' virtualenv="{{ venv_path }}"
+
+    - name: include custom urls
+      blockinfile:
+        dest: "{{ checkout_path }}/onadata/apps/main/urls.py"
+        block: |
+          custom_urls = getattr(settings, 'CUSTOM_MAIN_URLS', None)
+          if custom_urls:
+             for url_module in custom_urls:
+               urlpatterns.append(url(r'^', include(url_module)))
+
+    - name: Install development pip requirements
+      pip:
+        state: present
+        requirements: "{{ checkout_path }}/requirements/dev.pip"
+        virtualenv: "{{ venv_path }}"
+        extra_args: --allow-all-external
+      when: env_name == "dev"
+
+    - name: Install ses and s3 requirements
+      pip:
+        state: present
+        requirements: "{{ checkout_path }}/requirements/{{ item }}.pip"
+        virtualenv: "{{ venv_path }}"
+        extra_args: --allow-all-external
+      with_items:
+        - ses
+        - s3
+      when: env_name == "prod"
+
+    - name: Install numpy
+      pip:
+        state: present
+        name: numpy
+        virtualenv: "{{ venv_path }}"
+
+    - name: Install pandas
+      pip:
+        state: present
+        name: pandas
+        version: 0.12.0
+        virtualenv: "{{ venv_path }}"
+
+    - name: Install uwsgi
+      pip:
+        state: present
+        name: uwsgi
+        virtualenv: "{{ venv_path }}"
+
+    - name: Copy over our local settings from template
+      template:
+        src: "{{ local_settings_path }}"
+        dest: "{{ checkout_path }}/onadata/settings/local_settings.py"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Make the new codebase current
+      file:
+        force: yes
+        state: link
+        dest: "{{ codebase_path }}"
+        src: "{{ checkout_path }}"
+
+    - name: Syncdb, migrate and collect static files
+      django_manage:
+        command: "{{ item }}"
+        app_path: "{{ checkout_path }}"
+        virtualenv: "{{ venv_path }}"
+      with_items:
+        - migrate --noinput
+        - collectstatic --noinput
+
+    - name: Copy celery init.d script
+      template:
+        src: templates/etc/init.d/celeryd
+        dest: /etc/init.d/celeryd-{{ service_name }}
+        mode: 0755
+
+    - name: Copy celery default script
+      template:
+        src: templates/etc/default/celeryd-kobocat
+        dest: /etc/default/celeryd-{{ service_name }}
+        mode: 0755
+
+    - name: Copy upstart script
+      template:
+        src: templates/etc/init/uwsgi_generic.conf
+        dest: /etc/init/{{ service_name }}.conf
+        mode: 0644
+
+
+    - name: Copy uwsgi.ini
+      template:
+        src: templates/common/uwsgi_generic.ini
+        dest: "{{ checkout_path }}/uwsgi.ini"
+        mode: 0644
+
+    - name: Kill Celery Workers Gracefully
+      shell: ps auxww | grep celery | grep -v "grep" | awk '{print $2}' | xargs kill -15
+      become: True
+      ignore_errors: yes
+
+    - include: ../tasks/nginx.yaml cfg_file=django_uwsgi_generic
+
+    - name: Restart kobocat, nginx & rabbitmq
+      service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+        - "{{ service_name }}"
+        - "celeryd-{{service_name}}"
+        - nginx
+        - rabbitmq-server
+        - memcached
+
+    - include: ../tasks/monit.yaml
+    - include: ../tasks/logrotate.yaml logrotate_from=generic logrotate_to={{ service_name }}

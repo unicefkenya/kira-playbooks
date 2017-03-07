@@ -1,0 +1,25 @@
+---
+- name: Install monit
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 600
+  with_items:
+    - monit
+
+- name: Copy monit config files
+  template:
+    src: "templates/etc/monit/conf.d/{{ item }}"
+    dest: "/etc/monit/conf.d/{{ item }}"
+    mode: 0644
+  with_items:
+    "{{ monit_scripts }}"
+
+- name: Restart monit
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - monit

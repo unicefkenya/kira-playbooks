@@ -1,0 +1,7 @@
+check process celeryd-kobocat
+    with pidfile /var/run/celery/{{ nginx_server_name }}-{{ service_name }}.pid
+    start program = "/etc/init.d/celeryd-{{ service_name }} start" as uid root and gid root
+    stop program = "/etc/init.d/celeryd-{{ service_name }} stop" as uid root and gid root
+    if 5 restarts within 10 cycles then timeout
+    if totalmem is greater than 3000.0 MB for 3 cycles then restart
+    group celery

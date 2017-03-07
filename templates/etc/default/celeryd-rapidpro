@@ -1,0 +1,36 @@
+# Name of nodes to start, here we have a single node
+CELERYD_NODES="default-node handler-node msg-node flow-node"
+
+# Where to chdir at start.
+CELERYD_CHDIR="{{ codebase_path }}"
+
+# Python interpreter from environment, if using virtualenv
+ENV_PYTHON="{{ venv_path }}/bin/python"
+
+# How to call "manage.py celeryd_multi"
+CELERYD_MULTI="$ENV_PYTHON $CELERYD_CHDIR/manage.py celeryd_multi"
+
+# How to call "manage.py celeryctl"
+CELERYCTL="$ENV_PYTHON $CELERYD_CHDIR/manage.py celeryctl"
+
+# Extra arguments to celeryd
+CELERYD_OPTS="--time-limit=300 --concurrency=1 -Q:default-node celery -Q:handler-node handler -Q:msg-node msgs -Q:flow-node flows"
+
+# Name of the celery config module, don't change this.
+CELERY_CONFIG_MODULE="celeryconfig"
+
+# %n will be replaced with the nodename.
+CELERYD_LOG_FILE="/var/log/celery/%n-ona.log"
+CELERYD_PID_FILE="/var/run/celery/%n-ona.pid"
+
+# Workers should run as an unprivileged user.
+CELERYD_USER="{{ system_user }}"
+CELERYD_GROUP="{{ system_group }}"
+
+# Set any other env vars here too!
+PROJET_ENV="{{ env_name }}"
+
+# Name of the projects settings module.
+# in this case is just settings and not the full path because it will change the dir to
+# the project folder first.
+export DJANGO_SETTINGS_MODULE="temba.settings"

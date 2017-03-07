@@ -1,0 +1,9 @@
+check process uwsgi-{{ service_name }}
+    with pidfile {{ pid_file }}
+    start program = "/sbin/start {{ service_name }}" as uid root and gid root
+    stop program = "/sbin/stop {{ service_name }}" as uid root and gid root
+    if totalmem is greater than 5000.0 MB for 3 cycles then restart
+    if cpu > 50% for 2 cycles then alert
+    if loadavg(5min) greater than 10 for 8 cycles then restart
+    if 20 restarts within 20 cycles then timeout
+    group uwsgi

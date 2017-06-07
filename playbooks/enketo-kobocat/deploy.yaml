@@ -153,7 +153,7 @@
           PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
     - name: create init script for pm2
-      command: "env PATH=$PATH:/usr/bin pm2 startup linux -u {{ system_user }} --hp {{ system_user_home }}"
+      command: "env PATH=$PATH:/usr/bin pm2 startup upstart -u {{ system_user }} --hp {{ system_user_home }}"
       args:
         chdir: "{{ codebase_path }}"
       become: True

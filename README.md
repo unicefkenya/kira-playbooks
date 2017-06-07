@@ -18,7 +18,12 @@ or feel free to install those from your distro's repos (and brew if using OSX).
 `git clone git@github.com:onaio/kira-playbooks.git playbooks && cd playbooks`
 
 ***Install Requirements***
-`pip install -r requirements.txt`
+`sudo pip install python-virtualenvwrapper`
+`export WORKON_HOME=$HOME/.virtualenvs`
+`mkdir $WORKON_HOME`
+`source /usr/local/bin/virtualenvwrapper.sh`
+`mkvirtualenv playbooks`
+`pip install -r requirements/base.txt`
 
 ***Install required roles***
 `ansible-galaxy install -r requirements/roles.yml -p roles`

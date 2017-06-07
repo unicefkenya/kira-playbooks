@@ -10,8 +10,7 @@
     - ANXS.postgresql
     - alexeymedvedchikov.rabbitmq
   vars:
-      monit_scripts: ["celeryd-kobocat", "cron", "monit",
-        "memcached", "nginx", "openssh-server", "rsyslog", "system", "uwsgi-kobocat"]
+      monit_scripts: ["celeryd-kobocat", "cron", "monit", "uwsgi-kobocat"]
   tasks:
     - name: Add onadata system user
       user:

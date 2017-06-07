@@ -151,8 +151,8 @@
         PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
       become_user: "{{ system_user }}"
 
-    adding the following task because sometimes error in 
-    https://github.com/sass/node-sass/issues/1579 is triggered
+    # adding the following task because sometimes error in 
+    # https://github.com/sass/node-sass/issues/1579 is triggered
     - name: re-install node-sass
       shell: "{{ npm_path }} rebuild node-sass"
       environment:

@@ -12,8 +12,8 @@ checkout_path: "/srv/kpi/app-versioned/1479815865"
 aws_email_username: ""
 aws_email_password: ""
 venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
-core_url: https://kobo.redcrosske.onalabs.org
-enketo_url: https://enketo.redcrosske.onalabs.org
+core_url: https://kobo.redcross.or.ke
+enketo_url: https://enketo.redcross.or.ke
 service_name: "{{ system_user }}"
 wsgi_module: kobo.wsgi:application
 log_path: /var/log/kpi

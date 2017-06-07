@@ -69,8 +69,8 @@ include_postgis: True
 django_settings_module: "onadata.settings.common"
 nginx_cert_path: ""
 nginx_key_path: ""
-koboform_server: "dkobo.redcrosske.onalabs.org"
-enketo_server: "https://enketo.redcrosske.onalabs.org/"
+koboform_server: "dkobo.redcross.or.ke"
+enketo_server: "https://enketo.redcross.or.ke/"
 
 # postgresql
 dedicated_postgres_host: "False"

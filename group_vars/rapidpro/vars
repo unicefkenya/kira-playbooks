@@ -27,8 +27,8 @@ wsgi_processes: 3
 pid_file: "/run/{{ service_name }}/{{ service_name }}.pid"
 celery_beat_pid_file: "/run/{{ service_name }}/{{ service_name }}_celery_beat.pid"
 proxy_read_timeout: "300s"
-no_reply_monit_email: "noreply+rapidpro@ona.io"
-email_admins: [{"Ona Tech", "tech+rapidpro@ona.io"}]
+no_reply_monit_email: "noreply+rapidpro.redcross.or.ke@ona.io"
+email_admins: [{"Ona Tech", "tech+rapidpro.redcross.or.ke@ona.io"}]
 
 mage_install_path: "{{ system_user_home }}/mage"
 mage_versioned_path: "{{ mage_install_path }}-versioned"

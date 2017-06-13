@@ -72,33 +72,6 @@ nginx_key_path: ""
 koboform_server: "dkobo.redcross.or.ke"
 enketo_server: "https://enketo.redcross.or.ke/"
 
-# postgresql
-dedicated_postgres_host: "False"
-
-pgsql_db: kobocat
-pgsql_user: kobocat
-pgsql_password: "{{ vault_pgsql_password }}"
-
-pgsql_host: "127.0.0.1"
-
-postgresql_version: 9.5
-
-postgresql_users:
-  - name: "{{ pgsql_user }}"
-    pass: "{{ pgsql_password }}"
-
-postgresql_databases:
-  - name: "{{ pgsql_db }}"
-    owner: "{{ pgsql_user }}"
-    hstore: yes
-
-postgresql_user_privileges:
-  - name: "{{ pgsql_user }}"
-    db: "{{ pgsql_db }}"
-
-postgresql_ext_install_postgis: yes
-postgresql_ext_postgis_version: "2.2"
-
 # ssl
 nginx_cert_path: "{{ vault_nginx_cert_path }}"
 nginx_key_path: "{{ vault_nginx_key_path }}"

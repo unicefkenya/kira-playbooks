@@ -63,31 +63,6 @@ npm_path: "{{ node_dir }}/bin/npm"
 bower_path: "{{ node_dir }}/bin/bower"
 grunt_path: "{{ node_dir }}/bin/grunt"
 
-# postgres 
-pgsql_password: "{{ vault_pgsql_password }}"
-pgsql_host: "127.0.0.1"
-pgsql_user: "kpi"
-pgsql_db: "kpi"
-
-
-postgresql_version: 9.5
-
-postgresql_users:
-  - name: "{{ pgsql_user }}"
-    pass: "{{ pgsql_password }}"
-
-postgresql_databases:
-  - name: "{{ pgsql_db }}"
-    owner: "{{ pgsql_user }}"
-    hstore: yes
-
-postgresql_user_privileges:
-  - name: "{{ pgsql_user }}"
-    db: "{{ pgsql_db }}"
-
-postgresql_ext_install_postgis: yes
-postgresql_ext_postgis_version: "2.2"
-
 # ssl
 nginx_cert_path: "{{ vault_nginx_cert_path }}"
 nginx_key_path: "{{ vault_nginx_key_path }}"

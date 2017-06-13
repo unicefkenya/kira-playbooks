@@ -32,9 +32,9 @@ or feel free to install those from your distro's repos (and brew if using OSX).
 
 ##  Deployment Commands
 
-***Deploying dkobo***
+***Deploying kpi***
 
-`ansible-playbook -i inventory/dkobo.ini dkobo.yaml --extra-vars="" --vault-password-file [path to password file]`
+`ansible-playbook -i inventory/kpi.ini kpi.yaml --extra-vars="" --vault-password-file [path to password file]`
 
 ***Deploying kobocat***
 
@@ -43,6 +43,10 @@ or feel free to install those from your distro's repos (and brew if using OSX).
 ***Deploying enketo***
 
 `ansible-playbook -i inventory/enketo-kobocat.ini enketo-kobocat.yaml  --extra-vars="" --vault-password-file [path to password file]`
+
+***Deploying rapidpro***
+
+`ansible-playbook -i inventory/rapidpro.ini rapidpro.yaml  --extra-vars="" --vault-password-file [path to password file]`
 
 
 ## Usage (dev environment)

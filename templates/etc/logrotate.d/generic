@@ -1,4 +1,4 @@
-"{{ log_path }}/uwsgi_{{ service_name }}.log" "/var/log/celery/*.log" {
+"{{ log_path }}/uwsgi_{{ service_name }}.log" "{{ log_path }}/celery*.log" {
     copytruncate
     daily
     rotate 52

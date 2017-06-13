@@ -27,6 +27,8 @@ settings_app_name: kobo.local_settings
 kpi_broker_url: amqp://{{ system_user }}:{{ system_user }}@localhost:5672
 env_name: "prod"
 celery_app: "kobo"
+# django_secret_key needs to be the same as the one for kobocat
+django_secret_key: "{{ vault_django_secret_key }}"
 
 # git
 git_branch: master

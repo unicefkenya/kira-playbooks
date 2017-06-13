@@ -206,6 +206,12 @@
         dest: "{{ checkout_path }}/uwsgi.ini"
         mode: 0644
 
+    - name: copy kpi.env environment variables file
+      template:
+        src: templates/kpi/kpi.env
+        dest: "{{ checkout_path }}/kpi.env"
+        mode: 0644
+
     - name: kill celery workers gracefully
       shell: ps auxww | grep celery | grep -v "grep" | awk '{print $2}' | sudo xargs kill -15
       ignore_errors: yes

@@ -95,7 +95,9 @@
       sudo: yes
       pip:
         virtualenv: "{{ venv_path }}"
-        requirements: "{{ checkout_path}}/requirements.txt"
+        requirements: "{{ item }}"
+      with_items:
+        - "{{ checkout_path}}/dependencies/pip/requirements.txt"
 
     - name: Ensure required checkout directories are present
       file:
@@ -113,7 +115,7 @@
         state: present
         executable: "{{ npm_path }}"
       with_items:
-        - grunt-cli
+        - gulp-cli
         - bower
         - webpack
       environment:
@@ -143,14 +145,6 @@
       environment:
         PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
-    - name: Ensure grunt available locally
-      npm: 
-        name: grunt
-        path: "{{ checkout_path }}"
-      environment:
-        PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
-      become_user: "{{ system_user }}"
-
     # adding the following task because sometimes error in 
     # https://github.com/sass/node-sass/issues/1579 is triggered
     - name: re-install node-sass
@@ -159,7 +153,7 @@
         PATH: "{{ node_dir }}/bin:{{ ansible_env.PATH }}"
 
     - name: build client code
-      shell: "{{ grunt_path }} copy && {{ npm_path }} run build-production"
+      shell: "gulp copy && {{ npm_path }} run build"
       args:
         chdir: "{{ checkout_path }}"
       environment:
@@ -238,4 +232,4 @@
 
 
     - include: ../tasks/monit.yaml
-    - include: ../tasks/logrotate.yaml logrotate_from=kpi logrotate_to=kpi
+    - include: ../tasks/logrotate.yaml logrotate_from=generic logrotate_to=kpi

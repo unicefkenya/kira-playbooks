@@ -2,13 +2,13 @@
 system_user: kpi
 system_group: www-data
 system_user_home: "/srv/{{ system_user }}"
+monit_scripts: []
 
 # app
 app_path: "{{ system_user_home }}/app"
 codebase_path: "{{ system_user_home }}/app"
 versioned_path: "{{ app_path }}-versioned"
-#checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
-checkout_path: "/srv/kpi/app-versioned/1479815865"
+checkout_path: "{{ versioned_path }}/{{ ansible_date_time['epoch'] }}"
 aws_email_username: ""
 aws_email_password: ""
 venv_path: "{{ system_user_home }}/.virtualenvs/{{ system_user }}"
@@ -26,6 +26,7 @@ enable_https: True
 settings_app_name: kobo.local_settings
 kpi_broker_url: amqp://{{ system_user }}:{{ system_user }}@localhost:5672
 env_name: "prod"
+celery_app: "kobo"
 
 # git
 git_branch: master

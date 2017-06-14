@@ -1,0 +1,48 @@
+---
+# RabbitMQ user and vhost management
+
+- name: Ensure the users is removed
+  rabbitmq_user:
+    user: "{{ item }}"
+    state: absent
+  with_items: "{{ rabbitmq_users_removed }}"
+
+- name: Ensure the vhosts is present
+  rabbitmq_vhost:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ rabbitmq_vhosts }}"
+
+- name: Ensure the users is present
+  rabbitmq_user:
+    user: "{{ item.user }}"
+    password: "{{ item.password }}"
+    configure_priv: "{{ item.configure_priv|default('.*') }}"
+    read_priv: "{{ item.read_priv|default('.*') }}"
+    write_priv: "{{ item.write_priv|default('.*') }}"
+    vhost: "{{ item.vhost|default('/') }}"
+    permissions: "{{ item.permissions|default(omit) }}"
+    tags: "{{ item.tags|default('') }}"
+  with_items: "{{ rabbitmq_users }}"
+  no_log: true
+  tags: [configuration,rabbitmq]
+
+- name: Ensure rabbitmqadmin script is present
+  copy:
+    src: rabbitmqadmin
+    dest: /usr/local/bin
+    mode: 0755
+  when: "{{ rabbitmq_instant_queues }}"
+
+- name: Ensure requared queues are present
+  shell: rabbitmqadmin --username={{ item.0.user }} --password={{ item.0.password }} --vhost={{ item.0.vhost_name }} declare queue name={{ item.1 }} durable={{ item.0.durable }}
+  with_subelements:
+    - "{{ rabbitmq_vhosts_queues }}"
+    - queues
+  when: rabbitmq_instant_queues
+
+- name: Make a shovle for for queues
+  shell: rabbitmqctl set_parameter shovel {{ item.shovel_name }} '{{ item.shovel_json }}'
+  with_items:
+    - "{{ rabbitmq_shovels }}"
+  when: rabbitmq_instant_shovels

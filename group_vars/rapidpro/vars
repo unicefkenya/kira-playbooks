@@ -5,9 +5,9 @@ system_group: "www-data"
 system_user_home: "/home/{{ system_user }}"
 
 # git
-git_url: "https://github.com/onaio/rapidpro.git"
+git_url: "https://github.com/rapidpro/rapidpro.git"
 git_key: "git_key"
-git_branch: "master"
+git_branch: "v3.0.318"
 
 # mage
 mage_git_url: "https://github.com/rapidpro/mage.git"
@@ -51,11 +51,11 @@ aws_email_password: "{{ vault_aws_email_password }}"
 monit_protection: true
 
 # redis
-redis_password: "{{ vault_rapidpro_redis_passwd }}"
+# redis_password: "{{ vault_rapidpro_redis_passwd }}"
 redis_port: 6379
 
 #  postgresql
-pgsql_host: "127.0.0.1"
+pgsql_host: "10.0.0.6"
 pgsql_db: rapidpro
 pgsql_user: rapidpro
 pgsql_password: "{{ vault_rapidpro_pgsql_passwd }}"
@@ -80,5 +80,5 @@ postgresql_ext_install_postgis: yes
 postgresql_ext_postgis_version: "2.2"
 
 # ssl
-#nginx_cert_path: "{{ vault_nginx_cert_path }}"
-#nginx_key_path: "{{ vault_nginx_key_path }}"
+nginx_cert_path: "{{ vault_nginx_cert_path }}"
+nginx_key_path: "{{ vault_nginx_key_path }}"

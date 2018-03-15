@@ -26,11 +26,11 @@ TEMPLATE_DEBUG = DEBUG
 REDIS_HOST = "127.0.0.1"
 CACHES = {
     "default": {
-        "BACKEND": "redis_cache.cache.RedisCache",
-        "LOCATION": "%s:%s:%s" % (REDIS_HOST, REDIS_PORT, REDIS_DB),
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://%s:%s:%s" % (REDIS_HOST, REDIS_PORT, REDIS_DB),
         "OPTIONS": {
-            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
-            "PASSWORD": '{{ redis_password }}',
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            #"PASSWORD": '{{ redis_password }}',
         }
     }
 }

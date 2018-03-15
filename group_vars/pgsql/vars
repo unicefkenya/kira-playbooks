@@ -1,0 +1,24 @@
+#  postgresql
+pgsql_host: "127.0.0.1"
+pgsql_db: rapidpro
+pgsql_user: rapidpro
+pgsql_password: "{{ vault_rapidpro_pgsql_passwd }}"
+dedicated_postgres_host: "True"
+
+postgresql_version: 9.5
+
+postgresql_users:
+  - name: "{{ pgsql_user }}"
+    pass: "{{ pgsql_password }}"
+
+postgresql_databases:
+  - name: "{{ pgsql_db }}"
+    owner: "{{ pgsql_user }}"
+    hstore: yes
+
+postgresql_user_privileges:
+  - name: "{{ pgsql_user }}"
+    db: "{{ pgsql_db }}"
+
+postgresql_ext_install_postgis: yes
+postgresql_ext_postgis_version: "2.2"

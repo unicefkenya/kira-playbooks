@@ -36,7 +36,7 @@
         - libffi-dev
         - lib32ncurses5-dev
         - nginx
-        - npm
+        #- npm
         - nodejs
         - python-pip
         - python-virtualenv
@@ -49,10 +49,21 @@
         - "postgresql-contrib-{{ postgresql_version}}"
         - "postgresql-{{ postgresql_version }}-postgis-{{ postgresql_ext_postgis_version }}"
         - coffeescript
-        - node-less
+        - libmagic-dev
+        - libc-dev 
+        - musl-dev 
+        - libpng-dev 
+        - libfreetype6-dev 
+        - libxslt-dev 
+        - zlib1g-dev 
+        - libncurses5-dev 
+        - libpcre3-dev 
+        - libreadline6-dev 
+        - libzmq-dev
+        #- node-less
 
-    - name: create node symlink
-      file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
+   # - name: create node symlink
+   #   file: src=/usr/bin/nodejs dest=/usr/bin/node state=link
 
     - name: install npm packages
       npm:
@@ -62,6 +73,7 @@
       with_items:
         - less
         - coffee-script
+        - bower
 
     - name: Ensure required checkout directories are present
       file:
@@ -117,6 +129,17 @@
         owner: root
         group: root
         mode: 0644
+   
+    - name: Copy 500.html from template
+      template:
+        src: templates/opt/rapidpro/500.html
+        dest: "{{ checkout_path }}/templates/500.html"
+        
+ 
+    - name: install bower dependencies
+      bower: 
+        path: "{{ checkout_path }}"
+        state: present
 
     - name: Syncdb, migrate and collect static files
       django_manage:
@@ -125,6 +148,7 @@
         virtualenv: "{{ venv_path }}"
       with_items:
         - migrate --noinput
+        - compress --extension=".haml" --force -v0
         - collectstatic --noinput
 
     - name: Changing static folder permission

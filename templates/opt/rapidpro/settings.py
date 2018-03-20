@@ -20,6 +20,8 @@ TEMBA_HOST = '{{ nginx_server_name }}'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+ALLOWED_HOSTS = ['{{ nginx_server_name }}']
+
 # -----------------------------------------------------------------------------
 # Redis & Cache Configuration (we expect a Redis instance on localhost)
 # -----------------------------------------------------------------------------
@@ -136,9 +138,9 @@ BRANDING = {
     '{{ nginx_server_name }}': {
         'slug': 'rapidpro',
         'name': 'RapidPro',
-        'org': 'UNICEF',
-        'styles': ['brands/rapidpro/font/style.css',
-                   'brands/rapidpro/less/style.less'],
+        'org': 'RECDROSS KENYA',
+        'colors': dict(primary='#0c6596'),
+        'styles': ['brands/rapidpro/font/style.css'],
         'welcome_topup': 1000,
         'email': 'join@rapidpro.ona.io',
         'support_email': 'support@rapidpro.ona.io',
@@ -150,6 +152,8 @@ BRANDING = {
         'splash': '/brands/rapidpro/splash.jpg',
         'logo': '/brands/rapidpro/logo.png',
         'allow_signups': True,
+	'tiers': dict(import_flows=0, multi_user=0, multi_org=0),
+        'bundles': [],
         'welcome_packs': [dict(size=5000, name="Demo Account"),
                           dict(size=100000, name="UNICEF Account")],
         'description': _(
@@ -160,6 +164,18 @@ BRANDING = {
     }
 }
 DEFAULT_BRAND = '{{ nginx_server_name }}'
+
+COMPRESS_ENABLED=True
+COMPRESS_OFFLINE=True
+COMPRESS_URL = STATIC_URL
+COMPRESS_ROOT = STATIC_ROOT
+COMPRESS_CSS_HASHING_METHOD = 'content'
+COMPRESS_OFFLINE_MANIFEST = 'manifest-{{git_branch}}.json'
+COMPRESS_OFFLINE_CONTEXT = []
+for brand in BRANDING.values():
+    context = dict(STATIC_URL=STATIC_URL, base_template='frame.html', debug=False, testing=False)
+    context['brand'] = dict(slug=brand['slug'], styles=brand['styles'])
+    COMPRESS_OFFLINE_CONTEXT.append(context)
 
 LOGGING = {
     'version': 1,

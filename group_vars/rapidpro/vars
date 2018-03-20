@@ -7,7 +7,7 @@ system_user_home: "/home/{{ system_user }}"
 # git
 git_url: "https://github.com/rapidpro/rapidpro.git"
 git_key: "git_key"
-git_branch: "v3.0.318"
+git_branch: "v3.0.334"
 
 # mage
 mage_git_url: "https://github.com/rapidpro/mage.git"
